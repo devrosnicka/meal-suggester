@@ -1,0 +1,3 @@
+meal.tomaskrizek.cz {
+    reverse_proxy backend:3000
+}

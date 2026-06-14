@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meal Suggester</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f5f5f0;
+      color: #1a1a1a;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 32px rgba(0, 0, 0, 0.08);
+      padding: 3rem;
+      max-width: 480px;
+      width: 90%;
+      text-align: center;
+    }
+
+    .window-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #f59e0b;
+      margin-bottom: 0.75rem;
+    }
+
+    .window-label.breakfast { color: #f59e0b; }
+    .window-label.lunch     { color: #10b981; }
+    .window-label.dinner    { color: #6366f1; }
+    .window-label.none      { color: #9ca3af; }
+
+    h1 {
+      font-size: 1.875rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      line-height: 1.2;
+    }
+
+    .description {
+      color: #6b7280;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .time-info {
+      font-size: 0.75rem;
+      color: #d1d5db;
+    }
+
+    .reload-btn {
+      display: inline-block;
+      margin-top: 1.5rem;
+      padding: 0.5rem 1.25rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background: transparent;
+      color: #9ca3af;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .reload-btn:hover {
+      background: #f9fafb;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <p class="window-label" id="window-label">Loading...</p>
+    <h1 id="meal-name"></h1>
+    <p class="description" id="meal-desc"></p>
+    <p class="time-info" id="time-info"></p>
+    <button class="reload-btn" onclick="loadSuggestion()">Suggest another</button>
+  </div>
+
+  <script>
+    async function loadSuggestion() {
+      const windowLabel = document.getElementById('window-label');
+      const mealName    = document.getElementById('meal-name');
+      const mealDesc    = document.getElementById('meal-desc');
+      const timeInfo    = document.getElementById('time-info');
+
+      try {
+        const res  = await fetch('/api/suggestion');
+        const data = await res.json();
+
+        const labels = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', none: 'No meal right now' };
+
+        windowLabel.textContent = labels[data.window] ?? data.window;
+        windowLabel.className   = 'window-label ' + data.window;
+
+        if (data.window === 'none' || !data.meal) {
+          mealName.textContent = '';
+          mealDesc.textContent = 'Come back during meal hours: breakfast 6–11, lunch 11–15, dinner 15–22.';
+        } else {
+          mealName.textContent = data.meal.name;
+          mealDesc.textContent = data.meal.description;
+        }
+
+        timeInfo.textContent = data.serverTime
+          ? 'Server time: ' + new Date(data.serverTime).toLocaleTimeString()
+          : '';
+      } catch (err) {
+        windowLabel.textContent = 'Error';
+        mealName.textContent    = '';
+        mealDesc.textContent    = 'Could not load suggestion. Is the server running?';
+        console.error(err);
+      }
+    }
+
+    loadSuggestion();
+  </script>
+</body>
+</html>

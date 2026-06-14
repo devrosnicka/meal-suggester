@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meal Suggester</title>
+  <title>Návrh jídla</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -80,11 +80,11 @@
 </head>
 <body>
   <div class="card">
-    <p class="window-label" id="window-label">Loading...</p>
+    <p class="window-label" id="window-label">Načítání...</p>
     <h1 id="meal-name"></h1>
     <p class="description" id="meal-desc"></p>
     <p class="time-info" id="time-info"></p>
-    <button class="reload-btn" onclick="loadSuggestion()">Suggest another</button>
+    <button class="reload-btn" onclick="loadSuggestion()">Navrhnout jiné</button>
   </div>
 
   <script>
@@ -98,26 +98,26 @@
         const res  = await fetch('/api/suggestion');
         const data = await res.json();
 
-        const labels = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', none: 'No meal right now' };
+        const labels = { breakfast: 'Snídaně', lunch: 'Oběd', dinner: 'Večeře', none: 'Teď není čas na jídlo' };
 
         windowLabel.textContent = labels[data.window] ?? data.window;
         windowLabel.className   = 'window-label ' + data.window;
 
         if (data.window === 'none' || !data.meal) {
           mealName.textContent = '';
-          mealDesc.textContent = 'Come back during meal hours: breakfast 6–11, lunch 11–15, dinner 15–22.';
+          mealDesc.textContent = 'Vraťte se v době jídel: snídaně 6–11, oběd 11–15, večeře 15–22.';
         } else {
           mealName.textContent = data.meal.name;
           mealDesc.textContent = data.meal.description;
         }
 
         timeInfo.textContent = data.serverTime
-          ? 'Server time: ' + new Date(data.serverTime).toLocaleTimeString()
+          ? 'Čas serveru: ' + new Date(data.serverTime).toLocaleTimeString()
           : '';
       } catch (err) {
-        windowLabel.textContent = 'Error';
+        windowLabel.textContent = 'Chyba';
         mealName.textContent    = '';
-        mealDesc.textContent    = 'Could not load suggestion. Is the server running?';
+        mealDesc.textContent    = 'Nepodařilo se načíst návrh. Běží server?';
         console.error(err);
       }
     }

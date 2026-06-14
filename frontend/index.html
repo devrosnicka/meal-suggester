@@ -76,23 +76,37 @@
       background: #f9fafb;
       color: #6b7280;
     }
+
+    .card-content {
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .card-content.loading {
+      opacity: 0;
+      transform: translateY(6px);
+    }
   </style>
 </head>
 <body>
   <div class="card">
-    <p class="window-label" id="window-label">Načítání...</p>
-    <h1 id="meal-name"></h1>
-    <p class="description" id="meal-desc"></p>
-    <p class="time-info" id="time-info"></p>
+    <div class="card-content loading" id="card-content">
+      <p class="window-label" id="window-label">Načítání...</p>
+      <h1 id="meal-name"></h1>
+      <p class="description" id="meal-desc"></p>
+      <p class="time-info" id="time-info"></p>
+    </div>
     <button class="reload-btn" onclick="loadSuggestion()">Navrhnout jiné</button>
   </div>
 
   <script>
     async function loadSuggestion() {
+      const content     = document.getElementById('card-content');
       const windowLabel = document.getElementById('window-label');
       const mealName    = document.getElementById('meal-name');
       const mealDesc    = document.getElementById('meal-desc');
       const timeInfo    = document.getElementById('time-info');
+
+      content.classList.add('loading');
 
       try {
         const res  = await fetch('/api/suggestion');
@@ -119,6 +133,8 @@
         mealName.textContent    = '';
         mealDesc.textContent    = 'Nepodařilo se načíst návrh. Běží server?';
         console.error(err);
+      } finally {
+        content.classList.remove('loading');
       }
     }
 
